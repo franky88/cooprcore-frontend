@@ -32,6 +32,7 @@ import { SHARE_PAR_VALUE } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import RoleGuard from '@/components/shared/RoleGuard';
 import DeactivateMemberButton from '@/components/members/DeactivateMemberButton';
+import { PortalBadge } from '@/components/members/PortalBadge';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -64,7 +65,7 @@ export default function MemberDetailPage({ params }: Props) {
     member.middle_name,
   );
 
-  console.log('Shares', shares);
+  console.log('Member', member);
 
   return (
     <div className="space-y-5 max-w-4xl">
@@ -100,7 +101,10 @@ export default function MemberDetailPage({ params }: Props) {
                     </span>
                   )}
                 </h2>
-                <StatusBadge status={member.status} />
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={member.status} />
+                  <PortalBadge enabled={!!member.portal_enabled} />
+                </div>
               </div>
               <p className="text-xs font-mono text-slate-400 mt-0.5">
                 {member.member_id}

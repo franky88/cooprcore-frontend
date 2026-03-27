@@ -63,6 +63,8 @@ export interface Member {
   id_number: string;
   photo_url?: string | null;
   signature_url?: string | null;
+  portal_enabled?: boolean;
+  portal_activated_at?: string | null;
   created_at: string;
   updated_at: string;
 }
