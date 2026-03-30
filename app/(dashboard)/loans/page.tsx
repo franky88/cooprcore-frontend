@@ -1,30 +1,31 @@
 // frontend/app/(dashboard)/loans/page.tsx
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useLoans } from "@/hooks/useLoans";
-import LoanTable from "@/components/loans/LoanTable";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLoans } from '@/hooks/useLoans';
+import LoanTable from '@/components/loans/LoanTable';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import RoleGuard from "@/components/shared/RoleGuard";
-import { CreditCard, Search, PlusCircle } from "lucide-react";
-import { DEFAULT_PER_PAGE, LOAN_STATUSES } from "@/lib/constants";
-import { useDebounce } from "@/hooks/useDebounce";
-import type { LoanStatus } from "@/types/loan";
+} from '@/components/ui/select';
+import RoleGuard from '@/components/shared/RoleGuard';
+import { CreditCard, Search, PlusCircle, ChevronLeft } from 'lucide-react';
+import { DEFAULT_PER_PAGE, LOAN_STATUSES } from '@/lib/constants';
+import { useDebounce } from '@/hooks/useDebounce';
+import type { LoanStatus } from '@/types/loan';
+import Link from 'next/link';
 
 export default function LoansPage() {
   const router = useRouter();
   const [page, setPage] = useState<number>(1);
-  const [search, setSearch] = useState<string>("");
-  const [status, setStatus] = useState<LoanStatus | "">("");
+  const [search, setSearch] = useState<string>('');
+  const [status, setStatus] = useState<LoanStatus | ''>('');
   const debouncedSearch = useDebounce(search, 350);
 
   const { data, isLoading } = useLoans({
@@ -40,12 +41,21 @@ export default function LoansPage() {
   };
 
   const handleStatusChange = (value: string) => {
-    setStatus(value === "all" ? "" : (value as LoanStatus));
+    setStatus(value === 'all' ? '' : (value as LoanStatus));
     setPage(1);
   };
 
   return (
     <div className="space-y-5">
+      <div className="flex items-center gap-2">
+        <Link
+          href="/loans"
+          className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+        >
+          <ChevronLeft className="h-3.5 w-3.5" />
+          Loans
+        </Link>
+      </div>
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -63,16 +73,25 @@ export default function LoansPage() {
         </div>
 
         <RoleGuard
-          allowedRoles={["super_admin", "branch_manager", "loan_officer"]}
+          allowedRoles={['super_admin', 'branch_manager', 'loan_officer']}
         >
-          <Button
-            size="sm"
-            className="bg-indigo-600 hover:bg-indigo-700 gap-1.5"
-            onClick={() => router.push("/loans/apply")}
-          >
-            <PlusCircle className="h-3.5 w-3.5" />
-            New Application
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size={'sm'}
+              variant={'outline'}
+              onClick={() => router.push('/loans/applications')}
+            >
+              Applications
+            </Button>
+            <Button
+              size="sm"
+              className="bg-indigo-600 hover:bg-indigo-700 gap-1.5"
+              onClick={() => router.push('/loans/apply')}
+            >
+              <PlusCircle className="h-3.5 w-3.5" />
+              New Application
+            </Button>
+          </div>
         </RoleGuard>
       </div>
 
@@ -88,7 +107,7 @@ export default function LoansPage() {
           />
         </div>
 
-        <Select value={status || "all"} onValueChange={handleStatusChange}>
+        <Select value={status || 'all'} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-40 h-8 text-sm">
             <SelectValue placeholder="All statuses" />
           </SelectTrigger>

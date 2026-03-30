@@ -1,124 +1,154 @@
 'use client';
 
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useMemberLoans } from '@/hooks/member/useMemberPortal';
+import { useMemberLoanApplications } from '@/hooks/useLoanApplications';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 
-export default function MemberLoansClient() {
-  const { data, isLoading, isError } = useMemberLoans();
+function getStatusClass(status: string) {
+  switch (status) {
+    case 'Submitted':
+      return 'border-blue-200 bg-blue-50 text-blue-700';
+    case 'Under Review':
+      return 'border-amber-200 bg-amber-50 text-amber-700';
+    case 'Approved':
+      return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+    case 'Rejected':
+      return 'border-red-200 bg-red-50 text-red-700';
+    default:
+      return 'border-slate-200 bg-slate-50 text-slate-700';
+  }
+}
 
-  if (isLoading) {
+export default function MemberLoansClient() {
+  const loansQuery = useMemberLoans();
+  const applicationsQuery = useMemberLoanApplications();
+
+  if (loansQuery.isLoading || applicationsQuery.isLoading) {
     return (
       <div className="text-sm text-muted-foreground">Loading your loans...</div>
     );
   }
 
-  if (isError || !data) {
+  if (loansQuery.isError || applicationsQuery.isError) {
     return (
-      <div className="text-sm text-red-600">Unable to load your loans.</div>
+      <div className="text-sm text-red-600">
+        Unable to load your loan records.
+      </div>
     );
   }
 
+  const loans = loansQuery.data ?? [];
+  const applications = applicationsQuery.data ?? [];
+
+  console.log('Member Loans:', loans);
+  console.log('Member Loan Applications:', applications);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">My Loans</h1>
-        <p className="text-sm text-muted-foreground">
-          View your loan applications and balances
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold">My Loans</h1>
+          <p className="text-sm text-muted-foreground">
+            View your loan applications and approved loan records
+          </p>
+        </div>
+
+        <Button asChild>
+          <Link href="/member/loans/apply">Apply for Loan</Link>
+        </Button>
       </div>
 
-      <div className="grid gap-4">
-        {data.length === 0 ? (
-          <Card className="rounded-2xl">
-            <CardContent className="py-8 text-sm text-muted-foreground">
-              No loan records found.
-            </CardContent>
-          </Card>
-        ) : (
-          data.map((loan) => (
-            <Card key={loan.id} className="rounded-2xl">
-              <CardHeader className="pb-3">
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="text-base">Loan Applications</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {applications.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No loan applications submitted yet.
+            </p>
+          ) : (
+            applications.map((application) => (
+              <div key={application.id} className="rounded-xl border p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <CardTitle className="text-base">
-                      {loan.loan_type}
-                    </CardTitle>
+                    <p className="font-medium">{application.loan_type}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {application.application_id}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`rounded-full border px-3 py-1 text-xs font-medium ${getStatusClass(
+                      application.status,
+                    )}`}
+                  >
+                    {application.status}
+                  </span>
+                </div>
+
+                <div className="mt-3 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+                  <p>Amount: {formatCurrency(application.principal)}</p>
+                  <p>Term: {application.term_months} months</p>
+                  <p>Submitted: {formatDate(application.submitted_at)}</p>
+                  <p>Purpose: {application.purpose}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="rounded-2xl">
+        <CardHeader>
+          <CardTitle className="text-base">Approved / Existing Loans</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loans.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No loan records found.
+            </p>
+          ) : (
+            loans.map((loan) => (
+              <div key={loan.id} className="rounded-xl border p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-medium">{loan.loan_type}</p>
                     <p className="text-sm text-muted-foreground">
                       {loan.loan_id}
                     </p>
                   </div>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                    {loan.status}
-                  </span>
+                  <span className="text-sm font-medium">{loan.status}</span>
                 </div>
-              </CardHeader>
 
-              <CardContent className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                <Field
-                  label="Principal"
-                  value={formatCurrency(loan.principal)}
-                />
-                <Field
-                  label="Outstanding Balance"
-                  value={formatCurrency(loan.outstanding_balance)}
-                />
-                <Field
-                  label="Monthly Amortization"
-                  value={
-                    loan.monthly_amortization
+                <div className="mt-3 grid gap-2 text-sm text-muted-foreground md:grid-cols-2">
+                  <p>Principal: {formatCurrency(loan.principal)}</p>
+                  <p>Outstanding: {formatCurrency(loan.outstanding_balance)}</p>
+
+                  <p>
+                    Monthly Amortization:{' '}
+                    {loan.monthly_amortization
                       ? formatCurrency(loan.monthly_amortization)
-                      : '—'
-                  }
-                />
-                <Field
-                  label="Interest Rate"
-                  value={
-                    typeof loan.interest_rate === 'number'
-                      ? `${loan.interest_rate}%`
-                      : '—'
-                  }
-                />
-                <Field
-                  label="Term"
-                  value={
-                    typeof loan.term_months === 'number'
-                      ? `${loan.term_months} months`
-                      : '—'
-                  }
-                />
-                <Field
-                  label="Date Applied"
-                  value={
-                    loan.date_applied ? formatDate(loan.date_applied) : '—'
-                  }
-                />
-                <Field
-                  label="Date Released"
-                  value={
-                    loan.date_released ? formatDate(loan.date_released) : '—'
-                  }
-                />
-                <Field
-                  label="Maturity Date"
-                  value={
-                    loan.maturity_date ? formatDate(loan.maturity_date) : '—'
-                  }
-                />
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="font-medium">{value}</p>
+                      : '—'}
+                  </p>
+                  <p>
+                    Maturity Date:{' '}
+                    {loan.maturity_date ? formatDate(loan.maturity_date) : '—'}
+                  </p>
+                  <p>Terms: {loan.term_months} months</p>
+                  <p>
+                    Applied:{' '}
+                    {loan.date_applied ? formatDate(loan.date_applied) : '—'}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
