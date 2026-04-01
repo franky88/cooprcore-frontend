@@ -20,6 +20,7 @@ import { DEFAULT_PER_PAGE, LOAN_STATUSES } from '@/lib/constants';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { LoanStatus } from '@/types/loan';
 import Link from 'next/link';
+import { LoanApplicationsButton } from '@/components/loans/LoanApplicationsButton';
 
 export default function LoansPage() {
   const router = useRouter();
@@ -76,13 +77,7 @@ export default function LoansPage() {
           allowedRoles={['super_admin', 'branch_manager', 'loan_officer']}
         >
           <div className="flex items-center gap-2">
-            <Button
-              size={'sm'}
-              variant={'outline'}
-              onClick={() => router.push('/loans/applications')}
-            >
-              Applications
-            </Button>
+            <LoanApplicationsButton />
             <Button
               size="sm"
               className="bg-indigo-600 hover:bg-indigo-700 gap-1.5"

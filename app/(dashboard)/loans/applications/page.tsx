@@ -20,7 +20,7 @@ import Link from 'next/link';
 export default function LoanApplicationsPage() {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState('Submitted');
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search, 350);
 
@@ -75,7 +75,7 @@ export default function LoanApplicationsPage() {
         </div>
 
         <Select
-          value={status || 'all'}
+          value={status}
           onValueChange={(value) => {
             setStatus(value === 'all' ? '' : value);
             setPage(1);
