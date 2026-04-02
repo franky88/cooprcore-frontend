@@ -1,17 +1,30 @@
-"use client";
+'use client';
 
-import { useProfile } from "@/hooks/useProfile";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Building2, IdCard, Mail, ShieldCheck, User2 } from "lucide-react";
-import ChangePasswordCard from "./ChangePasswordCard";
+import { useProfile } from '@/hooks/useProfile';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertTriangle,
+  Building2,
+  IdCard,
+  Mail,
+  ShieldCheck,
+  User2,
+} from 'lucide-react';
+import ChangePasswordCard from './ChangePasswordCard';
 
 function formatRole(role: string): string {
   return role
-    .split("_")
+    .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+    .join(' ');
 }
 
 interface InfoRowProps {
@@ -26,7 +39,7 @@ function InfoRow({ label, value, icon }: InfoRowProps) {
       <div className="mt-0.5 text-muted-foreground">{icon}</div>
       <div className="min-w-0">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className="break-words font-medium">{value}</p>
+        <p className="wrap-break-word font-medium">{value}</p>
       </div>
     </div>
   );
@@ -72,7 +85,8 @@ function ProfileErrorState({ message }: { message: string }) {
 
 export default function ProfilePageContent() {
   const { data, isLoading, isError, error } = useProfile();
-  console.log("data", data)
+
+  console.log('data', data);
 
   if (isLoading) {
     return <ProfileSkeleton />;
@@ -82,7 +96,7 @@ export default function ProfilePageContent() {
     const message =
       error instanceof Error
         ? error.message
-        : "Something went wrong while fetching your profile.";
+        : 'Something went wrong while fetching your profile.';
     return <ProfileErrorState message={message} />;
   }
 
@@ -96,7 +110,10 @@ export default function ProfilePageContent() {
           </p>
         </div>
 
-        <Badge variant="secondary" className="w-fit rounded-full px-3 py-1 text-sm">
+        <Badge
+          variant="secondary"
+          className="w-fit rounded-full px-3 py-1 text-sm"
+        >
           {formatRole(data.role)}
         </Badge>
       </div>
@@ -130,13 +147,13 @@ export default function ProfilePageContent() {
 
           <InfoRow
             label="Employee ID"
-            value={data.employee_id || "Not available"}
+            value={data.employee_id || 'Not available'}
             icon={<IdCard className="h-4 w-4" />}
           />
 
           <InfoRow
             label="Branch"
-            value={data.branch || "Not assigned"}
+            value={data.branch || 'Not assigned'}
             icon={<Building2 className="h-4 w-4" />}
           />
         </CardContent>
